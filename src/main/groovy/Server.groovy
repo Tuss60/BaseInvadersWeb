@@ -43,7 +43,7 @@ def sockServ = new WebSocketServer(new InetSocketAddress(config.port)) {
 }
 
 def connectRun = {
-    def state = [players:[], mines:[], bombs:[], wormholes:[]]
+    def state = [players:[], mines:[], stations:[], bombs:[], wormholes:[]]
     new Socket(config.biHost, config.biPort).withStreams { ins, outs ->
         ins.eachLine { line ->
             StringTokenizer st = new StringTokenizer(line)
@@ -60,6 +60,7 @@ def connectRun = {
                 def p = [:]
                 p.id = st.nextToken() as Integer
                 p.name = st.nextToken()
+                p.minerals = st.nextToken() as Integer
                 p.score = st.nextToken() as Integer
                 p.px = st.nextToken() as Double
                 p.py = st.nextToken() as Double
@@ -75,7 +76,18 @@ def connectRun = {
                 m.owner = st.nextToken()
                 m.px = st.nextToken() as Double
                 m.py = st.nextToken() as Double
+                m.resources = st.nextToken() as Double
+                m.maxResources = st.nextToken() as Double
                 state.mines << m
+            }
+
+            state.stations.clear()
+            loop = st.nextToken() as Integer
+            for (def i = 0; i < loop; i++) {
+                def s = [:]
+                s.px = st.nextToken() as Double
+                s.py = st.nextToken() as Double
+                state.stations << s
             }
 
             state.bombs.clear()
